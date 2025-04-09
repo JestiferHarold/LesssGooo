@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Itineraries - Lesss Gooo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="futuristic.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="common.js"></script>
+    <style>
+        .itineraries-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .itineraries-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .itineraries-header h1 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin: 0;
+        }
+        
+        .create-itinerary-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .create-itinerary-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .itineraries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .itinerary-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .itinerary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .itinerary-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .itinerary-image::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+        }
+        
+        .itinerary-destination {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            z-index: 1;
+        }
+        
+        .itinerary-details {
+            padding: 1.5rem;
+        }
+        
+        .itinerary-dates {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .itinerary-dates i {
+            color: var(--primary-color);
+        }
+        
+        .itinerary-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .itinerary-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            color: var(--primary-color);
+        }
+        
+        .action-btn.delete-btn:hover {
+            color: var(--danger-color);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .empty-state h2 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: white;
+            color: var(--text-primary);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .toast.error {
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        @media (max-width: 768px) {
+            .itineraries-container {
+                padding: 1rem;
+            }
+            
+            .itineraries-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .itineraries-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="index.html">
+                    <h1>Lesss Gooo</h1>
+                </a>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="index.html#features">Features</a>
+                <a href="index.html#contact">Contact</a>
+                <a href="login.html" class="login-btn">Login</a>
+            </nav>
+            <div class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <div class="mobile-menu-header">
+            <div class="logo">
+                <h1>Lesss Gooo</h1>
+            </div>
+            <div class="mobile-menu-close">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        <nav class="mobile-nav">
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="index.html#features">Features</a>
+            <a href="index.html#contact">Contact</a>
+            <a href="login.html" class="login-btn">Login</a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="itineraries-container">
+            <div class="itineraries-header">
+                <h1>My Itineraries</h1>
+                <button class="create-itinerary-btn" id="create-itinerary-btn">
+                    <i class="fas fa-plus"></i>
+                    Create New Itinerary
+                </button>
+            </div>
+            
+            <div class="itineraries-grid" id="itineraries-grid">
+                <!-- Itinerary cards will be dynamically added here -->
+            </div>
+            
+            <!-- Empty state (shown when no itineraries exist) -->
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <i class="fas fa-map-marked-alt"></i>
+                <h2>No Itineraries Yet</h2>
+                <p>You haven't created any travel itineraries yet. Start planning your next adventure by creating a new itinerary!</p>
+                <button class="create-itinerary-btn" id="empty-state-create-btn">
+                    <i class="fas fa-plus"></i>
+                    Create Your First Itinerary
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <h2>Lesss Gooo</h2>
+                <p>Your ultimate travel companion</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <a href="index.html">Home</a>
+                    <a href="about.html">About</a>
+                    <a href="index.html#features">Features</a>
+                    <a href="index.html#contact">Contact</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 Lesss Gooo. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            function checkAuth() {
+                const userData = JSON.parse(sessionStorage.getItem('userData') || '{}');
+                if (!userData.isLoggedIn) {
+                    window.location.href = 'login.html';
+                }
+            }
+            
+            // Call checkAuth on page load
+            checkAuth();
+            
+            // Mobile menu toggle
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const mobileMenuClose = document.querySelector('.mobile-menu-close');
+            
+            mobileMenuToggle.addEventListener('click', function() {
+                mobileMenu.classList.add('active');
+            });
+            
+            mobileMenuClose.addEventListener('click', function() {
+                mobileMenu.classList.remove('active');
+            });
+            
+            // Toast notification function
+            function showToast(message, type = 'info') {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.className = `toast ${type}`;
+                toast.classList.add('show');
+                
+                // Hide toast after 3 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Get user's itineraries from sessionStorage
+            function getUserItineraries() {
+                const userData = JSON.parse(sessionStorage.getItem('userData') || '{}');
+                return userData.itineraries || [];
+            }
+            
+            // Save user's itineraries to sessionStorage
+            function saveUserItineraries(itineraries) {
+                const userData = JSON.parse(sessionStorage.getItem('userData') || '{}');
+                userData.itineraries = itineraries;
+                sessionStorage.setItem('userData', JSON.stringify(userData));
+            }
+            
+            // Format date for display
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                });
+            }
+            
+            // Render itinerary cards
+            function renderItineraries() {
+                const itineraries = getUserItineraries();
+                const itinerariesGrid = document.getElementById('itineraries-grid');
+                const emptyState = document.getElementById('empty-state');
+                
+                if (itineraries.length === 0) {
+                    itinerariesGrid.style.display = 'none';
+                    emptyState.style.display = 'block';
+                } else {
+                    itinerariesGrid.style.display = 'grid';
+                    emptyState.style.display = 'none';
+                    
+                    itinerariesGrid.innerHTML = '';
+                    
+                    itineraries.forEach((itinerary, index) => {
+                        const card = document.createElement('div');
+                        card.className = 'itinerary-card';
+                        
+                        // Get a random image for the destination (in a real app, you'd use actual images)
+                        const imageUrls = [
+                            'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+                            'https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+                            'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+                            'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+                            'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+                        ];
+                        const randomImage = imageUrls[Math.floor(Math.random() * imageUrls.length)];
+                        
+                        card.innerHTML = `
+                            <div class="itinerary-image" style="background-image: url('${randomImage}')">
+                                <h3 class="itinerary-destination">${itinerary.destination}</h3>
+                            </div>
+                            <div class="itinerary-details">
+                                <div class="itinerary-dates">
+                                    <i class="far fa-calendar-alt"></i>
+                                    <span>${formatDate(itinerary.startDate)} - ${formatDate(itinerary.endDate)}</span>
+                                </div>
+                                <div class="itinerary-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Duration</span>
+                                        <span class="stat-value">${itinerary.duration} days</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Budget</span>
+                                        <span class="stat-value">$${itinerary.budget}</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Travelers</span>
+                                        <span class="stat-value">${itinerary.travelers}</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Style</span>
+                                        <span class="stat-value">${itinerary.style}</span>
+                                    </div>
+                                </div>
+                                <div class="itinerary-actions">
+                                    <button class="action-btn view-btn" data-index="${index}">
+                                        <i class="fas fa-eye"></i>
+                                        View
+                                    </button>
+                                    <button class="action-btn edit-btn" data-index="${index}">
+                                        <i class="fas fa-edit"></i>
+                                        Edit
+                                    </button>
+                                    <button class="action-btn delete-btn" data-index="${index}">
+                                        <i class="fas fa-trash"></i>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        itinerariesGrid.appendChild(card);
+                    });
+                    
+                    // Add event listeners to buttons
+                    document.querySelectorAll('.view-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.getAttribute('data-index'));
+                            viewItinerary(index);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.edit-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.getAttribute('data-index'));
+                            editItinerary(index);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.delete-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.getAttribute('data-index'));
+                            deleteItinerary(index);
+                        });
+                    });
+                }
+            }
+            
+            // View itinerary
+            function viewItinerary(index) {
+                const itineraries = getUserItineraries();
+                const itinerary = itineraries[index];
+                
+                // Store the current itinerary in session storage
+                sessionStorage.setItem('currentItinerary', JSON.stringify(itinerary));
+                
+                // Redirect to the itinerary page
+                window.location.href = 'itinerary.html';
+            }
+            
+            // Edit itinerary
+            function editItinerary(index) {
+                const itineraries = getUserItineraries();
+                const itinerary = itineraries[index];
+                
+                // Store the current itinerary in session storage
+                sessionStorage.setItem('currentItinerary', JSON.stringify(itinerary));
+                
+                // Redirect to the dashboard page with edit mode
+                window.location.href = 'dashboard.html?mode=edit';
+            }
+            
+            // Delete itinerary
+            function deleteItinerary(index) {
+                if (confirm('Are you sure you want to delete this itinerary?')) {
+                    const itineraries = getUserItineraries();
+                    itineraries.splice(index, 1);
+                    saveUserItineraries(itineraries);
+                    renderItineraries();
+                    showToast('Itinerary deleted successfully', 'success');
+                }
+            }
+            
+            // Create new itinerary
+            function createNewItinerary() {
+                // Clear any existing current itinerary
+                sessionStorage.removeItem('currentItinerary');
+                
+                // Redirect to the dashboard page
+                window.location.href = 'dashboard.html';
+            }
+            
+            // Add event listeners to create buttons
+            document.getElementById('create-itinerary-btn').addEventListener('click', createNewItinerary);
+            document.getElementById('empty-state-create-btn').addEventListener('click', createNewItinerary);
+            
+            // Initial render
+            renderItineraries();
+        });
+    </script>
+</body>
+</html> 

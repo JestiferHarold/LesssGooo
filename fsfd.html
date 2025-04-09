@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelAI - Smart Itinerary Planner</title>
+    <style>
+        /* main.css - Styles for the main landing page */
+
+/* === Base Styles === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: #121212;
+  color: #ffffff;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: #6c63ff;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: #8a84ff;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+/* === Typography === */
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+h1 {
+  font-size: 3.5rem;
+  margin-bottom: 0.7em;
+}
+
+h2 {
+  font-size: 2.5rem;
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: #ffffff;
+}
+
+p {
+  margin-bottom: 1rem;
+  color: #b3b3b3;
+}
+
+/* === Buttons === */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn i {
+  margin-right: 0.5rem;
+}
+
+.btn-primary {
+  background-color: #6c63ff;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #5a52e3;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(108, 99, 255, 0.4);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 2px solid #6c63ff;
+  color: #6c63ff;
+}
+
+.btn-outline:hover {
+  background-color: #6c63ff;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.btn-cta {
+  background-color: #ff6584;
+  color: #ffffff;
+  font-size: 1.1rem;
+  padding: 1rem 2.5rem;
+  letter-spacing: 0.5px;
+}
+
+.btn-cta:hover {
+  background-color: #ff4f73;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(255, 101, 132, 0.5);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* === Splash Screen === */
+#splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #121212;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeOut 1s ease 2s forwards;
+}
+
+.splash-content {
+  text-align: center;
+}
+
+.splash-content .logo {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  display: block;
+  animation: pulseScale 2s ease infinite;
+}
+
+.loading-bar {
+  width: 200px;
+  height: 4px;
+  background-color: #333333;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.loading-progress {
+  height: 100%;
+  width: 0%;
+  background-color: #6c63ff;
+  animation: loading 2s ease;
+  animation-fill-mode: forwards;
+}
+
+/* === Header & Navigation === */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 5%;
+  z-index: 100;
+  background-color: rgba(18, 18, 18, 0.8);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+header.scrolled {
+  padding: 1rem 5%;
+  background-color: rgba(18, 18, 18, 0.95);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.logo .accent {
+  color: #6c63ff;
+}
+
+nav ul {
+  display: flex;
+  gap: 2rem;
+}
+
+nav ul li a {
+  color: #b3b3b3;
+  font-weight: 500;
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+nav ul li a:hover, nav ul li a.active {
+  color: #ffffff;
+}
+
+nav ul li a.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #6c63ff;
+  transform: scaleX(1);
+}
+
+nav ul li a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #6c63ff;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+nav ul li a:hover::after {
+  transform: scaleX(1);
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+#mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 20px;
+  cursor: pointer;
+}
+
+#mobile-menu-btn span {
+  width: 100%;
+  height: 3px;
+  background-color: #ffffff;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+/* === Parallax Section === */
+.parallax-container {
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.parallax-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+}
+
+.layer-1 {
+  background-image: url('img/parallax-bg.jpg');
+  opacity: 0.6;
+  transform: translateZ(-300px) scale(4);
+}
+
+.layer-2 {
+  background-image: url('img/parallax-mountains.png');
+  opacity: 0.7;
+  transform: translateZ(-200px) scale(3);
+}
+
+.layer-3 {
+  background-image: url('img/parallax-trees.png');
+  opacity: 0.8;
+  transform: translateZ(-100px) scale(2);
+}
+
+.layer-4 {
+  background-image: url('img/parallax-foreground.png');
+  opacity: 0.9;
+  transform: translateZ(-50px) scale(1.5);
+}
+
+.layer-5 {
+  background-image: url('img/parallax-particles.png');
+  transform: translateZ(0) scale(1);
+  animation: floatParticles 30s linear infinite;
+}
+
+.parallax-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  max-width: 800px;
+  padding: 0 2rem;
+}
+
+.parallax-content h1 {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  animation: fadeInUp 1s ease 0.5s both;
+}
+
+.parallax-content p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  animation: fadeInUp 1s ease 0.7s both;
+}
+
+.parallax-content .btn {
+  animation: fadeInUp 1s ease 0.9s both;
+}
+
+/* === Features Section === */
+.features-section {
+  padding: 5rem 5%;
+  text-align: center;
+  background-color: #121212;
+  position: relative;
+}
+
+.features-section h2 {
+  margin-bottom: 3rem;
+}
+
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transform: translateY(0);
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  background-color: #2a2a2a;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  color: #6c63ff;
+  margin-bottom: 1.5rem;
+  height: 80px;
+  width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(108, 99, 255, 0.1);
+  border-radius: 50%;
+}
+
+.feature-card h3 {
+  margin-bottom: 1rem;
+}
+
+.feature-card p {
+  color: #b3b3b3;
+}
+
+/* === Testimonials Section === */
+.testimonials-section {
+  padding: 5rem 5%;
+  background-color: #161616;
+  position: relative;
+  text-align: center;
+}
+
+.testimonial-slider {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.testimonial-slide {
+  display: none;
+  animation: fadeIn 0.5s ease;
+}
+
+.testimonial-slide.active {
+  display: block;
+}
+
+.testimonial-content {
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.testimonial-content::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 15px solid #1e1e1e;
+}
+
+.testimonial-content p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin-bottom: 0;
+  font-style: italic;
+  color: #b3b3b3;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.testimonial-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #6c63ff;
+  margin-right: 1rem;
+  background-size: cover;
+  background-position: center;
+}
+
+.testimonial-info h4 {
+  margin-bottom: 0.2rem;
+}
+
+.testimonial-info p {
+  margin-bottom: 0;
+  color: #808080;
+}
+
+.testimonial-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.prev-testimonial, .next-testimonial {
+  background-color: transparent;
+  border: none;
+  color: #6c63ff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.prev-testimonial:hover, .next-testimonial:hover {
+  color: #8a84ff;
+  transform: scale(1.1);
+}
+
+.testimonial-dots {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0 1.5rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #333333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dot.active {
+  background-color: #6c63ff;
+  transform: scale(1.3);
+}
+
+/* === Footer === */
+footer {
+  background-color: #0d0d0d;
+  padding: 4rem 5% 2rem;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+.footer-section h3 {
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.footer-section h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 2px;
+  background-color: #6c63ff;
+}
+
+.footer-section p {
+  color: #808080;
+  margin-bottom: 1rem;
+}
+
+.footer-section ul li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-section ul li a {
+  color: #808080;
+  transition: all 0.3s ease;
+}
+
+.footer-section ul li a:hover {
+  color: #6c63ff;
+  padding-left: 5px;
+}
+
+.social-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.social-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #1e1e1e;
+  color: #b3b3b3;
+  transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+  background-color: #6c63ff;
+  color: #ffffff;
+  transform: translateY(-3px);
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid #333333;
+}
+
+.footer-bottom p {
+  color: #666666;
+}
+
+/* === Modals === */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background-color: #1e1e1e;
+  margin: 10vh auto;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.4s ease;
+}
+
+.close-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  color: #808080;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.close-modal:hover {
+  color: #ff6584;
+  transform: rotate(90deg);
+}
+
+.modal-content h2 {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* === Form Elements === */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #b3b3b3;
+  font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="date"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid #333333;
+  border-radius: 8px;
+  background-color: #252525;
+  color: #ffffff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #6c63ff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+}
+
+.form-group input::placeholder {
+  color: #666666;
+}
+
+.form-group .toggle-password {
+  position: absolute;
+  right: -4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #808080;
+}
+
+.remember-forgot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.remember-forgot input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.forgot-password {
+  color: #6c63ff;
+}
+
+.alt-login {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.alt-login p {
+  margin-bottom: 1rem;
+  color: #808080;
+  position: relative;
+}
+
+.alt-login p::before,
+.alt-login p::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 30%;
+  height: 1px;
+  background-color: #333333;
+}
+
+.alt-login p::before {
+  left: 0;
+}
+
+.alt-login p::after {
+  right: 0;
+}
+
+.social-login {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.btn-social {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.google {
+  background-color: #db4437;
+  color: #ffffff;
+}
+
+.facebook {
+  background-color: #3b5998;
+  color: #ffffff;
+}
+
+.apple {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.btn-social:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.switch-form {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #808080;
+}
+
+.switch-form a {
+  color: #6c63ff;
+  font-weight: 500;
+}
+
+.terms a {
+  color: #6c63ff;
+}
+
+/* === Animations === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes loading {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes pulseScale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes floatParticles {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* === Media Queries === */
+@media screen and (max-width: 992px) {
+  h1 {
+    font-size: 2.8rem;
+  }
+  
+  h2 {
+    font-size: 2rem;
+  }
+  
+  .features-section, .testimonials-section {
+    padding: 4rem 5%;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  header {
+    padding: 1rem 5%;
+  }
+  
+  nav ul {
+    display: none;
+  }
+  
+  #mobile-menu-btn {
+    display: flex;
+  }
+  
+  .auth-buttons {
+    display: none;
+  }
+  
+  h1 {
+    font-size: 2.2rem;
+  }
+  
+  h2 {
+    font-size: 1.8rem;
+  }
+  
+  .parallax-content {
+    padding: 0 1rem;
+  }
+  
+  .features-section, .testimonials-section {
+    padding: 3rem 5%;
+  }
+  
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  h1 {
+    font-size: 1.8rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  .btn {
+    padding: 0.75rem 1.25rem;
+  }
+  
+  .btn-cta {
+    padding: 0.875rem 1.75rem;
+  }
+  
+  .modal-content {
+    padding: 1.5rem;
+  }
+  
+  .remember-forgot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+    </style>
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="logo-container">
+                <span class="logo">Lesss<span class="accent"><span></span>Goo</span></span>
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parallax Landing Page -->
+    <div id="landing-page">
+        <header>
+            <div class="logo-container">
+                <span class="logo">Lesss<span class="accent">Goo</span></span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="destinations.html">Destinations</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <button id="login-btn" class="btn btn-outline">Login</button>
+                <button id="signup-btn" class="btn btn-primary">Sign Up</button>
+            </div>
+            <div id="mobile-menu-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </header>
+
+        <div class="parallax-container">
+            <div class="parallax-layer layer-1"></div>
+            <div class="parallax-layer layer-2"></div>
+            <div class="parallax-layer layer-3"></div>
+            <div class="parallax-layer layer-4"></div>
+            <div class="parallax-layer layer-5"></div>
+            <div class="parallax-content">
+                <h1>AI-Powered Travel Planning</h1>
+                <p>Plan your perfect trip with our intelligent itinerary planner</p>
+                <button id="get-started-btn" class="btn btn-cta">Get Started</button>
+            </div>
+        </div>
+
+        <div class="features-section">
+            <h2>How TravelAI Works</h2>
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <h3>AI Itinerary</h3>
+                    <p>Our AI creates personalized itineraries based on your preferences, budget, and travel dates.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-plane-departure"></i>
+                    </div>
+                    <h3>Transport Booking</h3>
+                    <p>Book flights, trains, and buses directly through our platform with exclusive discounts.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-taxi"></i>
+                    </div>
+                    <h3>Local Transit</h3>
+                    <p>Seamlessly book cabs, autos, and bikes for local transportation during your trip.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonials-section">
+            <h2>Traveler Experiences</h2>
+            <div class="testimonial-slider">
+                <div class="testimonial-slide active">
+                    <div class="testimonial-content">
+                        <p>"TravelAI made planning our family vacation so easy! The AI suggestions were spot-on and saved us hours of research."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar"></div>
+                            <div class="testimonial-info">
+                                <h4>Sarah Johnson</h4>
+                                <p>Family Traveler</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-slide">
+                    <div class="testimonial-content">
+                        <p>"As a solo traveler on a budget, TravelAI helped me discover hidden gems and save money on transportation."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar"></div>
+                            <div class="testimonial-info">
+                                <h4>Alex Patel</h4>
+                                <p>Budget Explorer</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-slide">
+                    <div class="testimonial-content">
+                        <p>"The real-time weather updates and local transport booking made our business trip efficient and stress-free."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar"></div>
+                            <div class="testimonial-info">
+                                <h4>Michael Chen</h4>
+                                <p>Business Traveler</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-controls">
+                    <button class="prev-testimonial"><i class="fas fa-chevron-left"></i></button>
+                    <div class="testimonial-dots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                    <button class="next-testimonial"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TravelAI</h3>
+                    <p>Your AI-powered travel companion for hassle-free trip planning and booking.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="destinations.html">Destinations</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> 123 Travel Street, City, Country</p>
+                    <p><i class="fas fa-phone"></i> +1 234 567 890</p>
+                    <p><i class="fas fa-envelope"></i> info@travelai.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 TravelAI. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Login to TravelAI</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                    <span class="toggle-password"><i class="fas fa-eye"></i></span>
+                </div>
+                <div class="form-group remember-forgot">
+                    <div>
+                        <input type="checkbox" id="remember-me">
+                        <label for="remember-me">Remember me</label>
+                    </div>
+                    <a href="#" class="forgot-password">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+                <div class="alt-login">
+                    <p>Or login with</p>
+                    <div class="social-login">
+                        <button type="button" class="btn-social google"><i class="fab fa-google"></i></button>
+                        <button type="button" class="btn-social facebook"><i class="fab fa-facebook-f"></i></button>
+                        <button type="button" class="btn-social apple"><i class="fab fa-apple"></i></button>
+                    </div>
+                </div>
+                <p class="switch-form">Don't have an account? <a href="#" id="switch-to-signup">Sign up</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signup-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Create an Account</h2>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" required>
+                    <span class="toggle-password"><i class="fas fa-eye"></i></span>
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm-password">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" required>
+                    <span class="toggle-password"><i class="fas fa-eye"></i></span>
+                </div>
+                <div class="form-group terms">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a></label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+                <div class="alt-login">
+                    <p>Or sign up with</p>
+                    <div class="social-login">
+                        <button type="button" class="btn-social google"><i class="fab fa-google"></i></button>
+                        <button type="button" class="btn-social facebook"><i class="fab fa-facebook-f"></i></button>
+                        <button type="button" class="btn-social apple"><i class="fab fa-apple"></i></button>
+                    </div>
+                </div>
+                <p class="switch-form">Already have an account? <a href="#" id="switch-to-login">Login</a></p>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

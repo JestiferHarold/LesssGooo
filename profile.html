@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Lesss Gooo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="futuristic.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="common.js"></script>
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #818cf8;
+            --accent-color: #4f46e5;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --bg-dark: #111827;
+            --bg-darker: #0f172a;
+            --bg-card: #1e293b;
+            --bg-hover: #2d3748;
+            --border-color: #2d3748;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .profile-header {
+            background: var(--bg-card);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+            background-image: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%);
+            border: 1px solid var(--border-color);
+        }
+
+        .profile-content {
+            position: relative;
+        display: flex;
+            gap: 3rem;
+        }
+
+        .profile-sidebar {
+            width: 300px;
+            flex-shrink: 0;
+        }
+
+        .profile-main {
+            flex: 1;
+        }
+
+        .profile-image-container {
+        position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 2rem;
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .profile-edit-btn {
+        position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+        border-radius: 50%;
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .profile-edit-btn:hover {
+            transform: scale(1.1);
+            background: var(--accent-color);
+        }
+
+        #profile-image-input {
+        display: none;
+        }
+
+        .profile-info {
+            text-align: center;
+        }
+
+        .profile-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .profile-email {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--bg-darker);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: var(--bg-hover);
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .profile-nav {
+            background: var(--bg-darker);
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-item {
+        display: flex;
+        align-items: center;
+            padding: 1rem 1.25rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--bg-hover);
+        color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .nav-item i {
+            margin-right: 1rem;
+            width: 20px;
+            font-size: 1.1rem;
+        }
+
+        .section-card {
+            background: var(--bg-card);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title i {
+        color: var(--primary-color);
+            font-size: 1.25rem;
+    }
+
+        .section-edit {
+            color: var(--primary-color);
+        cursor: pointer;
+            font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .section-edit:hover {
+            background: var(--bg-hover);
+            transform: translateY(-2px);
+        }
+
+        .preferences-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .preference-card {
+            background: var(--bg-darker);
+            padding: 1.75rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .preference-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+
+        .preference-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        .preference-value {
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .trips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .trip-card {
+            background: var(--bg-darker);
+            border-radius: 1rem;
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .trip-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+
+        .trip-header {
+        display: flex;
+        justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .trip-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .trip-status {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .trip-status.completed {
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+        }
+
+        .trip-status.upcoming {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+        }
+
+        .trip-details {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .trip-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .trip-detail i {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .trip-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+        font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+        color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 1rem;
+            }
+
+            .profile-header {
+                padding: 2rem;
+            }
+
+            .profile-content {
+        flex-direction: column;
+                gap: 2rem;
+            }
+
+            .profile-sidebar {
+                width: 100%;
+            }
+
+            .profile-image-container {
+                width: 180px;
+                height: 180px;
+            }
+
+            .section-card {
+                padding: 1.5rem;
+            }
+
+            .preferences-grid,
+            .trips-grid {
+        grid-template-columns: 1fr;
+            }
+        }
+
+        /* Modal styles */
+        .modal {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-content h2 {
+            color: var(--text-primary);
+        }
+
+        .form-group label {
+            color: var(--text-secondary);
+        }
+
+        .form-group input {
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Toast notification */
+        .toast {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Header styles */
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .main-nav a {
+            color: var(--text-secondary);
+        }
+
+        .main-nav a:hover,
+        .main-nav a.active {
+        color: var(--primary-color);
+    }
+
+        .user-profile {
+            color: var(--text-primary);
+        }
+
+        .dropdown {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .dropdown a {
+            color: var(--text-secondary);
+        }
+
+        .dropdown a:hover {
+            background: var(--bg-hover);
+            color: var(--primary-color);
+        }
+
+        /* Footer styles */
+        .footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-brand a {
+            color: var(--text-primary);
+        }
+
+        .footer-tagline {
+            color: var(--text-secondary);
+        }
+
+        .footer-section h3 {
+            color: var(--text-primary);
+        }
+
+        .footer-section a {
+            color: var(--text-secondary);
+        }
+
+        .footer-section a:hover {
+            color: var(--primary-color);
+        }
+
+        .social-links a {
+            color: var(--text-secondary);
+        }
+
+        .social-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            background: var(--bg-card);
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            z-index: 999;
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+        
+        .mobile-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mobile-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-menu a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu a:hover,
+        .mobile-menu a.active {
+            background: var(--bg-hover);
+            color: var(--primary-color);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-darker);
+            transition: .4s;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 3px;
+            background-color: var(--text-secondary);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+            background-color: white;
+        }
+
+        /* Modal Actions */
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Trip Details View */
+        .trip-details-view {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .detail-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .detail-group label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .detail-group p {
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .avatar-option {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .avatar-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .avatar-option.selected {
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px #4CAF50;
+        }
+
+        .avatar-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-image-options {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .profile-image-options h3 {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="index.html">Lesss Gooo</a>
+                </div>
+                
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="itinerary.html">My Itineraries</a></li>
+                        <li><a href="bookings.html">My Bookings</a></li>
+                        <li><a href="profile.html" class="active">Profile</a></li>
+                    </ul>
+                </nav>
+                
+                <div class="header-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge"></span>
+                        <div class="notification-dropdown">
+                            <div class="notification-header">
+                                <h3>Notifications</h3>
+                                <button class="mark-all-read">Mark all as read</button>
+                            </div>
+                            <div class="notification-list">
+                                <!-- Notifications will be dynamically loaded here -->
+                            </div>
+                            <div class="notification-footer">
+                                <a href="#">View all notifications</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="user-profile">
+                        <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="User" class="avatar" id="user-avatar">
+                        <span class="user-name" id="user-name">User Name</span>
+                        <div class="dropdown">
+                            <ul>
+                                <li><a href="profile.html">My Account</a></li>
+                                <li><a href="settings.html">Settings</a></li>
+                                <li><a href="login.html" id="logout-btn">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <button class="mobile-menu-btn">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="itinerary.html">My Itineraries</a></li>
+            <li><a href="bookings.html">My Bookings</a></li>
+            <li><a href="profile.html" class="active">Profile</a></li>
+            <li><a href="login.html" id="mobile-logout-btn">Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="profile-header">
+                <h1>Profile Settings</h1>
+                <p>Manage your account information and preferences</p>
+            </div>
+            
+            <div class="profile-grid">
+                <!-- Profile Information Card -->
+                <div class="card profile-card">
+                    <div class="card-header">
+                        <h2>Profile Information</h2>
+                        <p>Update your personal details</p>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="profile-image-section">
+                            <div class="profile-image-container">
+                                <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Profile" id="profile-image">
+                                <label for="image-upload" class="image-upload-btn">
+                                    <i class="fas fa-camera"></i>
+                                    Change Photo
+                                </label>
+                                <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                        </div>
+                        </div>
+
+                        <form id="profile-form">
+                            <div class="form-group">
+                                <label for="full-name">
+                                    <i class="fas fa-user"></i> Full Name
+                                </label>
+                                <input type="text" id="full-name" placeholder="Enter your full name">
+                    </div>
+                    
+                            <div class="form-group">
+                                <label for="email">
+                                    <i class="fas fa-envelope"></i> Email Address
+                                </label>
+                                <input type="email" id="email" placeholder="Enter your email">
+                </div>
+                
+                            <div class="form-group">
+                                <label for="phone">
+                                    <i class="fas fa-phone"></i> Phone Number
+                                </label>
+                                <input type="tel" id="phone" placeholder="Enter your phone number">
+                    </div>
+                    
+                            <div class="form-group">
+                                <label for="location">
+                                    <i class="fas fa-map-marker-alt"></i> Location
+                                </label>
+                                <input type="text" id="location" placeholder="Enter your location">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                Save Changes <i class="fas fa-save"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Preferences Card -->
+                <div class="card preferences-card">
+                    <div class="card-header">
+                        <h2>Travel Preferences</h2>
+                        <p>Customize your travel experience</p>
+                    </div>
+                    
+                    <div class="card-body">
+                        <form id="preferences-form">
+                            <div class="form-group">
+                                <label for="travel-style">
+                                    <i class="fas fa-globe"></i> Preferred Travel Style
+                                </label>
+                                <select id="travel-style">
+                                    <option value="luxury">Luxury</option>
+                                    <option value="comfort">Comfort</option>
+                                    <option value="budget">Budget</option>
+                                    <option value="adventure">Adventure</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="currency">
+                                    <i class="fas fa-money-bill-wave"></i> Preferred Currency
+                                </label>
+                                <select id="currency">
+                                    <option value="inr">Indian Rupee (INR)</option>
+                                    <option value="usd">US Dollar (USD)</option>
+                                    <option value="eur">Euro (EUR)</option>
+                                </select>
+                        </div>
+                        
+                        <div class="form-group">
+                                <label for="language">
+                                    <i class="fas fa-language"></i> Preferred Language
+                                </label>
+                                <select id="language">
+                                    <option value="en">English</option>
+                                    <option value="hi">Hindi</option>
+                                    <option value="es">Spanish</option>
+                                </select>
+                        </div>
+                        
+                        <div class="form-group">
+                                <label>
+                                    <i class="fas fa-bell"></i> Notification Preferences
+                                </label>
+                                <div class="dashboard-checkbox-container">
+                                    <div class="dashboard-checkbox">
+                                        <input type="checkbox" id="email-notifications">
+                                        <label for="email-notifications">
+                                            <i class="fas fa-envelope checkbox-icon"></i>
+                                            <span class="checkbox-text">Email Notifications</span>
+                                        </label>
+                                    </div>
+                                    <div class="dashboard-checkbox">
+                                        <input type="checkbox" id="sms-notifications">
+                                        <label for="sms-notifications">
+                                            <i class="fas fa-sms checkbox-icon"></i>
+                                            <span class="checkbox-text">SMS Notifications</span>
+                                        </label>
+                                    </div>
+                                    <div class="dashboard-checkbox">
+                                        <input type="checkbox" id="push-notifications">
+                                        <label for="push-notifications">
+                                            <i class="fas fa-mobile-alt checkbox-icon"></i>
+                                            <span class="checkbox-text">Push Notifications</span>
+                                        </label>
+                                    </div>
+                                </div>
+                        </div>
+                        
+                            <button type="submit" class="btn btn-primary">
+                                Update Preferences <i class="fas fa-save"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Security Card -->
+                <div class="card security-card">
+                    <div class="card-header">
+                        <h2>Security Settings</h2>
+                        <p>Manage your account security</p>
+                    </div>
+                    
+                    <div class="card-body">
+                        <form id="security-form">
+                        <div class="form-group">
+                                <label for="current-password">
+                                    <i class="fas fa-lock"></i> Current Password
+                                </label>
+                                <input type="password" id="current-password" placeholder="Enter current password">
+                        </div>
+                        
+                        <div class="form-group">
+                                <label for="new-password">
+                                    <i class="fas fa-key"></i> New Password
+                                </label>
+                                <input type="password" id="new-password" placeholder="Enter new password">
+                        </div>
+                        
+                            <div class="form-group">
+                                <label for="confirm-password">
+                                    <i class="fas fa-key"></i> Confirm New Password
+                                </label>
+                                <input type="password" id="confirm-password" placeholder="Confirm new password">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>
+                                    <i class="fas fa-shield-alt"></i> Two-Factor Authentication
+                                </label>
+                                <div class="dashboard-checkbox">
+                                    <input type="checkbox" id="two-factor">
+                                    <label for="two-factor">
+                                        <i class="fas fa-shield-alt checkbox-icon"></i>
+                                        <span class="checkbox-text">Enable Two-Factor Authentication</span>
+                                    </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                                Update Security <i class="fas fa-shield-alt"></i>
+                        </button>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <a href="index.html" class="footer-logo">Lesss Gooo</a>
+                <p class="footer-tagline">Your AI Travel Companion</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="itinerary.html">My Itineraries</a></li>
+                        <li><a href="bookings.html">My Bookings</a></li>
+                        <li><a href="profile.html">Profile</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect With Us</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Lesss Gooo. All rights reserved.</p>
+        </div>
+    </footer>
+
+<script>
+    // Load user data
+    function loadUserData() {
+        const userData = UserManager.getUserData();
+        
+        // Update profile form fields
+        document.getElementById('full-name').value = userData.name || '';
+        document.getElementById('email').value = userData.email || '';
+        document.getElementById('phone').value = userData.phone || '';
+        document.getElementById('location').value = userData.location || '';
+        
+        // Update preferences form fields
+        document.getElementById('travel-style').value = userData.preferences.travelStyle || 'comfort';
+        document.getElementById('currency').value = userData.preferences.currency || 'inr';
+        document.getElementById('language').value = userData.preferences.language || 'en';
+        
+        // Update notification checkboxes
+        document.getElementById('email-notifications').checked = userData.preferences.notifications.email || false;
+        document.getElementById('sms-notifications').checked = userData.preferences.notifications.sms || false;
+        document.getElementById('push-notifications').checked = userData.preferences.notifications.push || false;
+        
+        // Update profile image
+        document.getElementById('profile-image').src = userData.profileImage;
+    }
+
+    // Handle image upload
+    document.getElementById('image-upload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageUrl = e.target.result;
+                document.getElementById('profile-image').src = imageUrl;
+                UserManager.updateProfileImage(imageUrl);
+                UIUtils.showToast('Profile picture updated successfully!', 'success');
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Form submissions
+    document.getElementById('profile-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const profileData = {
+            name: document.getElementById('full-name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            location: document.getElementById('location').value
+        };
+        
+        UserManager.updateProfile(profileData);
+        UIUtils.showToast('Profile updated successfully!', 'success');
+    });
+    
+    document.getElementById('preferences-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const preferences = {
+            travelStyle: document.getElementById('travel-style').value,
+            currency: document.getElementById('currency').value,
+            language: document.getElementById('language').value,
+            notifications: {
+                email: document.getElementById('email-notifications').checked,
+                sms: document.getElementById('sms-notifications').checked,
+                push: document.getElementById('push-notifications').checked
+            }
+        };
+        
+        UserManager.updatePreferences(preferences);
+        UIUtils.showToast('Preferences updated successfully!', 'success');
+    });
+
+    document.getElementById('security-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+        const twoFactorEnabled = document.getElementById('two-factor').checked;
+        
+        // Validate passwords
+        if (newPassword !== confirmPassword) {
+            UIUtils.showToast('New passwords do not match!', 'error');
+            return;
+        }
+        
+        if (newPassword.length < 8) {
+            UIUtils.showToast('Password must be at least 8 characters long!', 'error');
+            return;
+        }
+        
+        // In a real app, this would validate the current password and update the password on the server
+        // For demo purposes, we'll just show a success message
+        UIUtils.showToast('Security settings updated successfully!', 'success');
+        
+        // Clear password fields
+        document.getElementById('current-password').value = '';
+        document.getElementById('new-password').value = '';
+        document.getElementById('confirm-password').value = '';
+    });
+
+    // Run when page loads
+    window.addEventListener('load', function() {
+        loadUserData();
+    });
+</script>
+</body>
+</html>

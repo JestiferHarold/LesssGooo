@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookings - Lesss Gooo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="futuristic.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="common.js"></script>
+    <script>
+        // Simple authentication check
+        function checkAuth() {
+            const userData = JSON.parse(sessionStorage.getItem('userData') || '{}');
+            if (!userData.isLoggedIn) {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Run check when page loads
+        window.addEventListener('load', checkAuth);
+
+        // Handle logout
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            const userData = JSON.parse(sessionStorage.getItem('userData') || '{}');
+            userData.isLoggedIn = false;
+            sessionStorage.setItem('userData', JSON.stringify(userData));
+            window.location.href = 'index.html';
+        });
+
+        // Handle mobile logout
+        document.getElementById('mobile-logout-btn').addEventListener('click', function() {
+            const userData = JSON.parse(sessionStorage.getItem('userData') || '{}');
+            userData.isLoggedIn = false;
+            sessionStorage.setItem('userData', JSON.stringify(userData));
+            window.location.href = 'index.html';
+        });
+
+        // Load user data
+        function loadUserData() {
+            const userData = UserManager.getUserData();
+            
+            // Update welcome message
+            document.getElementById('welcome-message').textContent = `Welcome back, ${userData.name}!`;
+            
+            // Update profile image
+            document.getElementById('user-avatar').src = userData.profileImage;
+            
+            // Load bookings
+            loadBookings();
+        }
+        
+        // Load bookings
+        function loadBookings() {
+            const bookings = BookingManager.getBookings();
+            const bookingsContainer = document.getElementById('bookings-container');
+            
+            if (bookings.length === 0) {
+                bookingsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-ticket-alt"></i>
+                        <h3>No bookings yet</h3>
+                        <p>Your bookings will appear here</p>
+                        <button class="btn btn-primary" onclick="createNewBooking()">
+                            <i class="fas fa-plus"></i> Create Booking
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            bookingsContainer.innerHTML = bookings.map(booking => `
+                <div class="booking-card">
+                    <div class="booking-header">
+                        <h3>${booking.type || 'Booking'}</h3>
+                        <span class="booking-status ${booking.status || 'confirmed'}">${booking.status || 'Confirmed'}</span>
+                    </div>
+                    <div class="booking-details">
+                        <div class="booking-detail">
+                            <i class="fas fa-calendar"></i>
+                            <span>${UIUtils.formatDate(booking.date)}</span>
+                        </div>
+                        <div class="booking-detail">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${booking.location || 'Not specified'}</span>
+                        </div>
+                    </div>
+                    <div class="booking-actions">
+                        <button class="btn btn-sm btn-outline" onclick="viewBookingDetails('${booking.id}')">
+                            <i class="fas fa-eye"></i> View Details
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Create new booking
+        function createNewBooking() {
+            UIUtils.showModal('Create New Booking', `
+                <form id="new-booking-form">
+                    <div class="form-group">
+                        <label for="booking-type">Type</label>
+                        <select id="booking-type" required>
+                            <option value="">Select type</option>
+                            <option value="Flight">Flight</option>
+                            <option value="Hotel">Hotel</option>
+                            <option value="Train">Train</option>
+                            <option value="Bus">Bus</option>
+                            <option value="Car">Car</option>
+                            <option value="Activity">Activity</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="booking-date">Date</label>
+                        <input type="date" id="booking-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="booking-location">Location</label>
+                        <input type="text" id="booking-location" placeholder="Enter location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="booking-reference">Reference</label>
+                        <input type="text" id="booking-reference" placeholder="Enter booking reference">
+                    </div>
+                    <div class="form-group">
+                        <label for="booking-notes">Notes</label>
+                        <textarea id="booking-notes" placeholder="Add any notes about your booking"></textarea>
+                    </div>
+                </form>
+            `, [
+                { 
+                    id: 'save-booking-btn', 
+                    text: 'Create Booking', 
+                    class: 'btn-primary',
+                    handler: function() {
+                        const type = document.getElementById('booking-type').value;
+                        const date = document.getElementById('booking-date').value;
+                        const location = document.getElementById('booking-location').value;
+                        const reference = document.getElementById('booking-reference').value;
+                        const notes = document.getElementById('booking-notes').value;
+                        
+                        if (!type || !date || !location) {
+                            UIUtils.showToast('Please fill in all required fields', 'error');
+                            return;
+                        }
+                        
+                        const newBooking = BookingManager.addBooking({
+                            type,
+                            date,
+                            location,
+                            reference,
+                            notes,
+                            status: 'confirmed'
+                        });
+                        
+                        UIUtils.showToast('Booking created successfully!', 'success');
+                        this.closest('.modal').remove();
+                        loadBookings();
+                    }
+                },
+                { 
+                    id: 'cancel-booking-btn', 
+                    text: 'Cancel', 
+                    class: 'btn-outline',
+                    handler: function() {
+                        this.closest('.modal').remove();
+                    }
+                }
+            ]);
+        }
+        
+        // View booking details
+        function viewBookingDetails(bookingId) {
+            const bookings = BookingManager.getBookings();
+            const booking = bookings.find(b => b.id === bookingId);
+            
+            if (!booking) {
+                UIUtils.showToast('Booking not found', 'error');
+                return;
+            }
+            
+            UIUtils.showModal('Booking Details', `
+                <div class="booking-details-view">
+                    <div class="detail-group">
+                        <label>Type</label>
+                        <p>${booking.type || 'Not specified'}</p>
+                    </div>
+                    <div class="detail-group">
+                        <label>Date</label>
+                        <p>${UIUtils.formatDate(booking.date)}</p>
+                    </div>
+                    <div class="detail-group">
+                        <label>Location</label>
+                        <p>${booking.location || 'Not specified'}</p>
+                    </div>
+                    <div class="detail-group">
+                        <label>Status</label>
+                        <p>${booking.status || 'Confirmed'}</p>
+                    </div>
+                    <div class="detail-group">
+                        <label>Reference</label>
+                        <p>${booking.reference || 'Not specified'}</p>
+                    </div>
+                    <div class="detail-group">
+                        <label>Notes</label>
+                        <p>${booking.notes || 'No notes'}</p>
+                    </div>
+                </div>
+            `, [
+                { 
+                    id: 'edit-booking-btn', 
+                    text: 'Edit Booking', 
+                    class: 'btn-primary',
+                    handler: function() {
+                        editBooking(bookingId);
+                    }
+                },
+                { 
+                    id: 'cancel-booking-btn', 
+                    text: 'Cancel Booking', 
+                    class: 'btn-outline',
+                    handler: function() {
+                        cancelBooking(bookingId);
+                    }
+                },
+                { 
+                    id: 'close-booking-btn', 
+                    text: 'Close', 
+                    class: 'btn-outline',
+                    handler: function() {
+                        this.closest('.modal').remove();
+                    }
+                }
+            ]);
+        }
+        
+        // Edit booking
+        function editBooking(bookingId) {
+            const bookings = BookingManager.getBookings();
+            const booking = bookings.find(b => b.id === bookingId);
+            
+            if (!booking) {
+                UIUtils.showToast('Booking not found', 'error');
+                return;
+            }
+            
+            UIUtils.showModal('Edit Booking', `
+                <form id="edit-booking-form">
+                    <div class="form-group">
+                        <label for="edit-type">Type</label>
+                        <select id="edit-type" required>
+                            <option value="">Select type</option>
+                            <option value="Flight" ${booking.type === 'Flight' ? 'selected' : ''}>Flight</option>
+                            <option value="Hotel" ${booking.type === 'Hotel' ? 'selected' : ''}>Hotel</option>
+                            <option value="Train" ${booking.type === 'Train' ? 'selected' : ''}>Train</option>
+                            <option value="Bus" ${booking.type === 'Bus' ? 'selected' : ''}>Bus</option>
+                            <option value="Car" ${booking.type === 'Car' ? 'selected' : ''}>Car</option>
+                            <option value="Activity" ${booking.type === 'Activity' ? 'selected' : ''}>Activity</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-date">Date</label>
+                        <input type="date" id="edit-date" value="${booking.date || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-location">Location</label>
+                        <input type="text" id="edit-location" value="${booking.location || ''}" placeholder="Enter location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-status">Status</label>
+                        <select id="edit-status">
+                            <option value="confirmed" ${booking.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                            <option value="pending" ${booking.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="cancelled" ${booking.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                            <option value="completed" ${booking.status === 'completed' ? 'selected' : ''}>Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-reference">Reference</label>
+                        <input type="text" id="edit-reference" value="${booking.reference || ''}" placeholder="Enter booking reference">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-notes">Notes</label>
+                        <textarea id="edit-notes" placeholder="Add any notes about your booking">${booking.notes || ''}</textarea>
+                    </div>
+                </form>
+            `, [
+                { 
+                    id: 'save-edit-btn', 
+                    text: 'Save Changes', 
+                    class: 'btn-primary',
+                    handler: function() {
+                        const type = document.getElementById('edit-type').value;
+                        const date = document.getElementById('edit-date').value;
+                        const location = document.getElementById('edit-location').value;
+                        const status = document.getElementById('edit-status').value;
+                        const reference = document.getElementById('edit-reference').value;
+                        const notes = document.getElementById('edit-notes').value;
+                        
+                        if (!type || !date || !location) {
+                            UIUtils.showToast('Please fill in all required fields', 'error');
+                            return;
+                        }
+                        
+                        const updatedBooking = BookingManager.updateBooking(bookingId, {
+                            type,
+                            date,
+                            location,
+                            status,
+                            reference,
+                            notes
+                        });
+                        
+                        if (updatedBooking) {
+                            UIUtils.showToast('Booking updated successfully!', 'success');
+                            this.closest('.modal').remove();
+                            loadBookings();
+                        } else {
+                            UIUtils.showToast('Failed to update booking', 'error');
+                        }
+                    }
+                },
+                { 
+                    id: 'cancel-edit-btn', 
+                    text: 'Cancel', 
+                    class: 'btn-outline',
+                    handler: function() {
+                        this.closest('.modal').remove();
+                    }
+                }
+            ]);
+        }
+        
+        // Cancel booking
+        function cancelBooking(bookingId) {
+            UIUtils.showModal('Confirm Cancellation', `
+                <p>Are you sure you want to cancel this booking? This action cannot be undone.</p>
+            `, [
+                { 
+                    id: 'confirm-cancel-btn', 
+                    text: 'Cancel Booking', 
+                    class: 'btn-primary',
+                    handler: function() {
+                        const updatedBooking = BookingManager.cancelBooking(bookingId);
+                        
+                        if (updatedBooking) {
+                            UIUtils.showToast('Booking cancelled successfully!', 'success');
+                            this.closest('.modal').remove();
+                            loadBookings();
+                        } else {
+                            UIUtils.showToast('Failed to cancel booking', 'error');
+                        }
+                    }
+                },
+                { 
+                    id: 'keep-booking-btn', 
+                    text: 'Keep Booking', 
+                    class: 'btn-outline',
+                    handler: function() {
+                        this.closest('.modal').remove();
+                    }
+                }
+            ]);
+        }
+        
+        // Run when page loads
+        window.addEventListener('load', function() {
+            loadUserData();
+            
+            // Add event listener for new booking button
+            document.getElementById('new-booking-btn').addEventListener('click', createNewBooking);
+            
+            // Add event listener for filter button
+            document.getElementById('filter-btn').addEventListener('click', function() {
+                UIUtils.showModal('Filter Options', `
+                    <div class="filter-options">
+                        <div class="form-group">
+                            <label for="filter-type">Type</label>
+                            <select id="filter-type">
+                                <option value="">All</option>
+                                <option value="Flight">Flight</option>
+                                <option value="Hotel">Hotel</option>
+                                <option value="Train">Train</option>
+                                <option value="Bus">Bus</option>
+                                <option value="Car">Car</option>
+                                <option value="Activity">Activity</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-status">Status</label>
+                            <select id="filter-status">
+                                <option value="">All</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="pending">Pending</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-date">Date</label>
+                            <input type="date" id="filter-date">
+                        </div>
+                    </div>
+                `, [
+                    { 
+                        id: 'apply-filter-btn', 
+                        text: 'Apply Filter', 
+                        class: 'btn-primary',
+                        handler: function() {
+                            const type = document.getElementById('filter-type').value;
+                            const status = document.getElementById('filter-status').value;
+                            const date = document.getElementById('filter-date').value;
+                            
+                            // Apply filters to bookings
+                            // This is a simplified example - in a real app, you would filter the data
+                            UIUtils.showToast('Filters applied successfully!', 'success');
+                            this.closest('.modal').remove();
+                        }
+                    },
+                    { 
+                        id: 'cancel-filter-btn', 
+                        text: 'Cancel', 
+                        class: 'btn-outline',
+                        handler: function() {
+                            this.closest('.modal').remove();
+                        }
+                    }
+                ]);
+            });
+        });
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="index.html">Lesss Gooo</a>
+                </div>
+                
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="itinerary.html">My Itineraries</a></li>
+                        <li><a href="bookings.html" class="active">My Bookings</a></li>
+                        <li><a href="profile.html">Profile</a></li>
+                    </ul>
+                </nav>
+                
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <img src="https://images.unsplash.com/photo-1633332755192-72705e0b8a50?w=32&h=32&fit=crop&crop=faces" alt="User" class="avatar" id="user-avatar">
+                        <span class="user-name" id="user-name">User Name</span>
+                        <div class="dropdown">
+                            <ul>
+                                <li><a href="profile.html">My Account</a></li>
+                                <li><a href="settings.html">Settings</a></li>
+                                <li><a href="index.html" id="logout-btn">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <button class="mobile-menu-btn">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="itinerary.html">My Itineraries</a></li>
+            <li><a href="bookings.html" class="active">My Bookings</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="index.html" id="mobile-logout-btn">Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="dashboard-header" style="margin-top: 2rem;">
+                <h1 class="page-title">My Bookings</h1>
+                <div class="quick-actions">
+                    <button class="btn btn-outline" id="filter-btn">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Bookings List -->
+            <div class="bookings-list">
+                <!-- Bookings will be dynamically inserted here -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <a href="index.html" class="footer-logo">Lesss Gooo</a>
+                <p class="footer-tagline">Your AI Travel Companion</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="itinerary.html">My Itineraries</a></li>
+                        <li><a href="bookings.html">My Bookings</a></li>
+                        <li><a href="profile.html">Profile</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect With Us</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Lesss Gooo. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

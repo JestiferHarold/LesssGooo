@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Lesss Gooo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="futuristic.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="common.js"></script>
+    <script src="dashboard.js"></script>
+    <style>
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        .tab {
+            cursor: pointer;
+            padding: 1rem 2rem;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom-color: #007bff;
+            color: #007bff;
+        }
+        
+        .tab-content {
+            margin-top: 2rem;
+        }
+    </style>
+    <script>
+        // Simple authentication check
+        function checkAuth() {
+            const userData = JSON.parse(sessionStorage.getItem('userData') || '{}');
+            if (!userData.isLoggedIn) {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Run check when page loads
+        window.addEventListener('load', checkAuth);
+
+        // Handle logout
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            const userData = JSON.parse(sessionStorage.getItem('userData') || '{}');
+            userData.isLoggedIn = false;
+            sessionStorage.setItem('userData', JSON.stringify(userData));
+            window.location.href = 'index.html';
+        });
+
+        // Handle mobile logout
+        document.getElementById('mobile-logout-btn').addEventListener('click', function() {
+            const userData = JSON.parse(sessionStorage.getItem('userData') || '{}');
+            userData.isLoggedIn = false;
+            sessionStorage.setItem('userData', JSON.stringify(userData));
+            window.location.href = 'index.html';
+        });
+
+        // Load user data
+        function loadUserData() {
+            const userData = UserManager.getUserData();
+            
+            // Update welcome message
+            document.getElementById('welcome-message').textContent = `Welcome back, ${userData.name}!`;
+            
+            // Update profile image
+            document.getElementById('user-avatar').src = userData.profileImage;
+            
+            // Load trips
+            loadTrips();
+            
+            // Load bookings
+            loadBookings();
+            
+            // Load checklist
+            loadChecklist();
+        }
+        
+        // Load trips
+        function loadTrips() {
+            const trips = TripManager.getTrips();
+            const tripsContainer = document.getElementById('trips-container');
+            
+            if (trips.length === 0) {
+                tripsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-plane"></i>
+                        <h3>No trips yet</h3>
+                        <p>Start planning your next adventure!</p>
+                        <button class="btn btn-primary" onclick="createNewTrip()">
+                            <i class="fas fa-plus"></i> Create Trip
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            tripsContainer.innerHTML = trips.map(trip => `
+                <div class="trip-card">
+                    <div class="trip-header">
+                        <h3>${trip.destination || 'Unnamed Trip'}</h3>
+                        <span class="trip-status ${trip.status || 'upcoming'}">${trip.status || 'Upcoming'}</span>
+                    </div>
+                    <div class="trip-details">
+                        <div class="trip-detail">
+                            <i class="fas fa-calendar"></i>
+                            <span>${UIUtils.formatDate(trip.date)}</span>
+                        </div>
+                        <div class="trip-detail">
+                            <i class="fas fa-clock"></i>
+                            <span>${trip.duration || 'Not specified'}</span>
+                        </div>
+                    </div>
+                    <div class="trip-actions">
+                        <button class="btn btn-sm btn-outline" onclick="viewTripDetails('${trip.id}')">
+                            <i class="fas fa-eye"></i> View Details
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Load bookings
+        function loadBookings() {
+            const bookings = BookingManager.getBookings();
+            const bookingsContainer = document.getElementById('bookings-container');
+            
+            if (bookings.length === 0) {
+                bookingsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-ticket-alt"></i>
+                        <h3>No bookings yet</h3>
+                        <p>Your bookings will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            bookingsContainer.innerHTML = bookings.map(booking => `
+                <div class="booking-card">
+                    <div class="booking-header">
+                        <h3>${booking.type || 'Booking'}</h3>
+                        <span class="booking-status ${booking.status || 'confirmed'}">${booking.status || 'Confirmed'}</span>
+                    </div>
+                    <div class="booking-details">
+                        <div class="booking-detail">
+                            <i class="fas fa-calendar"></i>
+                            <span>${UIUtils.formatDate(booking.date)}</span>
+                        </div>
+                        <div class="booking-detail">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${booking.location || 'Not specified'}</span>
+                        </div>
+                    </div>
+                    <div class="booking-actions">
+                        <button class="btn btn-sm btn-outline" onclick="viewBookingDetails('${booking.id}')">
+                            <i class="fas fa-eye"></i> View Details
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Load checklist
+        function loadChecklist() {
+            const checklistContainer = document.getElementById('checklist-container');
+            const checklist = [
+                { id: 'flight', text: 'Book flights', icon: 'plane', dueDate: '2024-05-15' },
+                { id: 'hotel', text: 'Reserve hotel rooms', icon: 'bed', dueDate: '2024-05-10' },
+                { id: 'passport', text: 'Check passport validity', icon: 'passport', dueDate: '2024-04-20' },
+                { id: 'packing', text: 'Pack luggage', icon: 'suitcase', dueDate: '2024-05-18' },
+                { id: 'itinerary', text: 'Plan daily itinerary', icon: 'calendar-alt', dueDate: '2024-05-05' }
+            ];
+            
+            checklistContainer.innerHTML = checklist.map(item => `
+                <div class="dashboard-checkbox">
+                    <input type="checkbox" id="${item.id}">
+                    <label for="${item.id}">
+                        <i class="fas fa-${item.icon} checkbox-icon"></i>
+                        <span class="checkbox-text">${item.text}</span>
+                        <span class="checkbox-date">Due: ${UIUtils.formatDate(item.dueDate)}</span>
+                    </label>
+                </div>
+            `).join('');
+            
+            // Add event listeners to checkboxes
+            checklist.forEach(item => {
+                const checkbox = document.getElementById(item.id);
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        UIUtils.showToast(`Completed: ${item.text}`, 'success');
+                    }
+                });
+            });
+        }
+        
+        // Create new trip
+        function createNewTrip() {
+            UIUtils.showModal('Create New Trip', `
+                <form id="new-trip-form">
+                    <div class="form-group">
+                        <label for="trip-destination">Destination</label>
+                        <input type="text" id="trip-destination" placeholder="Enter destination" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="trip-date">Date</label>
+                        <input type="date" id="trip-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="trip-duration">Duration</label>
+                        <input type="text" id="trip-duration" placeholder="e.g., 5 days" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="trip-notes">Notes</label>
+                        <textarea id="trip-notes" placeholder="Add any notes about your trip"></textarea>
+                    </div>
+                </form>
+            `, [
+                { 
+                    id: 'save-trip-btn', 
+                    text: 'Create Trip', 
+                    class: 'btn-primary',
+                    handler: function() {
+                        const destination = document.getElementById('trip-destination').value;
+                        const date = document.getElementById('trip-date').value;
+                        const duration = document.getElementById('trip-duration').value;
+                        const notes = document.getElementById('trip-notes').value;
+                        
+                        if (!destination || !date || !duration) {
+                            UIUtils.showToast('Please fill in all required fields', 'error');
+                            return;
+                        }
+                        
+                        const newTrip = TripManager.addTrip({
+                            destination,
+                            date,
+                            duration,
+                            notes,
+                            status: 'upcoming'
+                        });
+                        
+                        UIUtils.showToast('Trip created successfully!', 'success');
+                        this.closest('.modal').remove();
+                        loadTrips();
+                    }
+                },
+                { 
+                    id: 'cancel-trip-btn', 
+                    text: 'Cancel', 
+                    class: 'btn-outline',
+                    handler: function() {
+                        this.closest('.modal').remove();
+                    }
+                }
+            ]);
+        }
+        
+        // View trip details
+        function viewTripDetails(tripId) {
+            const trips = TripManager.getTrips();
+            const trip = trips.find(t => t.id === tripId);
+            
+            if (!trip) {
+                UIUtils.showToast('Trip not found', 'error');
+                return;
+            }
+            
+            UIUtils.showModal('Trip Details', `
+                <div class="trip-details-view">
+                    <div class="detail-group">
+                        <label>Destination</label>
+                        <p>${trip.destination || 'Not specified'}</p>
+                    </div>
+                    <div class="detail-group">
+                        <label>Date</label>
+                        <p>${UIUtils.formatDate(trip.date)}</p>
+                    </div>
+                    <div class="detail-group">
+                        <label>Duration</label>
+                        <p>${trip.duration || 'Not specified'}</p>
+                    </div>
+                    <div class="detail-group">
+                        <label>Status</label>
+                        <p>${trip.status || 'Upcoming'}</p>
+                    </div>
+                    <div class="detail-group">
+                        <label>Notes</label>
+                        <p>${trip.notes || 'No notes'}</p>
+                    </div>
+                </div>
+            `, [
+                { 
+                    id: 'edit-trip-btn', 
+                    text: 'Edit Trip', 
+                    class: 'btn-primary',
+                    handler: function() {
+                        editTrip(tripId);
+                    }
+                },
+                { 
+                    id: 'delete-trip-btn', 
+                    text: 'Delete Trip', 
+                    class: 'btn-outline',
+                    handler: function() {
+                        deleteTrip(tripId);
+                    }
+                },
+                { 
+                    id: 'close-trip-btn', 
+                    text: 'Close', 
+                    class: 'btn-outline',
+                    handler: function() {
+                        this.closest('.modal').remove();
+                    }
+                }
+            ]);
+        }
+        
+        // Edit trip
+        function editTrip(tripId) {
+            const trips = TripManager.getTrips();
+            const trip = trips.find(t => t.id === tripId);
+            
+            if (!trip) {
+                UIUtils.showToast('Trip not found', 'error');
+                return;
+            }
+            
+            UIUtils.showModal('Edit Trip', `
+                <form id="edit-trip-form">
+                    <div class="form-group">
+                        <label for="edit-destination">Destination</label>
+                        <input type="text" id="edit-destination" value="${trip.destination || ''}" placeholder="Enter destination" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-date">Date</label>
+                        <input type="date" id="edit-date" value="${trip.date || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-duration">Duration</label>
+                        <input type="text" id="edit-duration" value="${trip.duration || ''}" placeholder="e.g., 5 days" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-status">Status</label>
+                        <select id="edit-status">
+                            <option value="upcoming" ${trip.status === 'upcoming' ? 'selected' : ''}>Upcoming</option>
+                            <option value="in-progress" ${trip.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="completed" ${trip.status === 'completed' ? 'selected' : ''}>Completed</option>
+                            <option value="cancelled" ${trip.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-notes">Notes</label>
+                        <textarea id="edit-notes" placeholder="Add any notes about your trip">${trip.notes || ''}</textarea>
+                    </div>
+                </form>
+            `, [
+                { 
+                    id: 'save-edit-btn', 
+                    text: 'Save Changes', 
+                    class: 'btn-primary',
+                    handler: function() {
+                        const destination = document.getElementById('edit-destination').value;
+                        const date = document.getElementById('edit-date').value;
+                        const duration = document.getElementById('edit-duration').value;
+                        const status = document.getElementById('edit-status').value;
+                        const notes = document.getElementById('edit-notes').value;
+                        
+                        if (!destination || !date || !duration) {
+                            UIUtils.showToast('Please fill in all required fields', 'error');
+                            return;
+                        }
+                        
+                        const updatedTrip = TripManager.updateTrip(tripId, {
+                            destination,
+                            date,
+                            duration,
+                            status,
+                            notes
+                        });
+                        
+                        if (updatedTrip) {
+                            UIUtils.showToast('Trip updated successfully!', 'success');
+                            this.closest('.modal').remove();
+                            loadTrips();
+                        } else {
+                            UIUtils.showToast('Failed to update trip', 'error');
+                        }
+                    }
+                },
+                { 
+                    id: 'cancel-edit-btn', 
+                    text: 'Cancel', 
+                    class: 'btn-outline',
+                    handler: function() {
+                        this.closest('.modal').remove();
+                    }
+                }
+            ]);
+        }
+        
+        // Delete trip
+        function deleteTrip(tripId) {
+            UIUtils.showModal('Confirm Delete', `
+                <p>Are you sure you want to delete this trip? This action cannot be undone.</p>
+            `, [
+                { 
+                    id: 'confirm-delete-btn', 
+                    text: 'Delete', 
+                    class: 'btn-primary',
+                    handler: function() {
+                        const success = TripManager.deleteTrip(tripId);
+                        
+                        if (success) {
+                            UIUtils.showToast('Trip deleted successfully!', 'success');
+                            this.closest('.modal').remove();
+                            loadTrips();
+                        } else {
+                            UIUtils.showToast('Failed to delete trip', 'error');
+                        }
+                    }
+                },
+                { 
+                    id: 'cancel-delete-btn', 
+                    text: 'Cancel', 
+                    class: 'btn-outline',
+                    handler: function() {
+                        this.closest('.modal').remove();
+                    }
+                }
+            ]);
+        }
+        
+        // View booking details
+        function viewBookingDetails(bookingId) {
+            const bookings = BookingManager.getBookings();
+            const booking = bookings.find(b => b.id === bookingId);
+            
+            if (!booking) {
+                UIUtils.showToast('Booking not found', 'error');
+                return;
+            }
+            
+            UIUtils.showModal('Booking Details', `
+                <div class="booking-details-view">
+                    <div class="detail-group">
+                        <label>Type</label>
+                        <p>${booking.type || 'Not specified'}</p>
+                    </div>
+                    <div class="detail-group">
+                        <label>Date</label>
+                        <p>${UIUtils.formatDate(booking.date)}</p>
+                    </div>
+                    <div class="detail-group">
+                        <label>Location</label>
+                        <p>${booking.location || 'Not specified'}</p>
+                    </div>
+                    <div class="detail-group">
+                        <label>Status</label>
+                        <p>${booking.status || 'Confirmed'}</p>
+                    </div>
+                    <div class="detail-group">
+                        <label>Reference</label>
+                        <p>${booking.reference || 'Not specified'}</p>
+                    </div>
+                </div>
+            `, [
+                { 
+                    id: 'cancel-booking-btn', 
+                    text: 'Cancel Booking', 
+                    class: 'btn-primary',
+                    handler: function() {
+                        cancelBooking(bookingId);
+                    }
+                },
+                { 
+                    id: 'close-booking-btn', 
+                    text: 'Close', 
+                    class: 'btn-outline',
+                    handler: function() {
+                        this.closest('.modal').remove();
+                    }
+                }
+            ]);
+        }
+        
+        // Cancel booking
+        function cancelBooking(bookingId) {
+            UIUtils.showModal('Confirm Cancellation', `
+                <p>Are you sure you want to cancel this booking? This action cannot be undone.</p>
+            `, [
+                { 
+                    id: 'confirm-cancel-btn', 
+                    text: 'Cancel Booking', 
+                    class: 'btn-primary',
+                    handler: function() {
+                        const updatedBooking = BookingManager.cancelBooking(bookingId);
+                        
+                        if (updatedBooking) {
+                            UIUtils.showToast('Booking cancelled successfully!', 'success');
+                            this.closest('.modal').remove();
+                            loadBookings();
+                        } else {
+                            UIUtils.showToast('Failed to cancel booking', 'error');
+                        }
+                    }
+                },
+                { 
+                    id: 'keep-booking-btn', 
+                    text: 'Keep Booking', 
+                    class: 'btn-outline',
+                    handler: function() {
+                        this.closest('.modal').remove();
+                    }
+                }
+            ]);
+        }
+        
+        // Run when page loads
+        window.addEventListener('load', function() {
+            loadUserData();
+            
+            // Add event listeners for tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and panes
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding pane
+                    tab.classList.add('active');
+                    const pane = document.getElementById(tab.dataset.tab);
+                    if (pane) {
+                        pane.classList.add('active');
+                    }
+                });
+            });
+
+            // Add event listener for new trip button
+            document.getElementById('new-trip-btn').addEventListener('click', createNewTrip);
+            
+            // Add event listener for filter button
+            document.getElementById('filter-btn').addEventListener('click', function() {
+                UIUtils.showModal('Filter Options', `
+                    <div class="filter-options">
+                        <div class="form-group">
+                            <label for="filter-status">Status</label>
+                            <select id="filter-status">
+                                <option value="">All</option>
+                                <option value="upcoming">Upcoming</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-date">Date</label>
+                            <input type="date" id="filter-date">
+                        </div>
+                    </div>
+                `, [
+                    { 
+                        id: 'apply-filter-btn', 
+                        text: 'Apply Filter', 
+                        class: 'btn-primary',
+                        handler: function() {
+                            const status = document.getElementById('filter-status').value;
+                            const date = document.getElementById('filter-date').value;
+                            
+                            // Apply filters to trips and bookings
+                            // This is a simplified example - in a real app, you would filter the data
+                            UIUtils.showToast('Filters applied successfully!', 'success');
+                            this.closest('.modal').remove();
+                        }
+                    },
+                    { 
+                        id: 'cancel-filter-btn', 
+                        text: 'Cancel', 
+                        class: 'btn-outline',
+                        handler: function() {
+                            this.closest('.modal').remove();
+                        }
+                    }
+                ]);
+            });
+            
+            // Add event listeners for range sliders
+            document.getElementById('budget').addEventListener('input', function() {
+                document.getElementById('budget-value').textContent = '₹' + this.value;
+            });
+
+            document.getElementById('days').addEventListener('input', function() {
+                document.getElementById('days-value').textContent = this.value + ' days';
+            });
+            
+            // Add event listener for itinerary form submission
+            document.getElementById('itinerary-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const startingPoint = document.getElementById('starting-point').value;
+                const destination = document.getElementById('destination').value;
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+                const travelers = document.getElementById('travelers').value;
+                const budget = document.getElementById('budget').value;
+                const days = document.getElementById('days').value;
+                const preferences = document.getElementById('preferences').value;
+                
+                // Get selected interests
+                const interests = [];
+                document.querySelectorAll('input[name="interests"]:checked').forEach(checkbox => {
+                    interests.push(checkbox.value);
+                });
+                
+                // Create a new trip with the form data
+                const newTrip = TripManager.addTrip({
+                    destination,
+                    date: startDate,
+                    duration: days + ' days',
+                    status: 'upcoming',
+                    notes: `Starting from: ${startingPoint}\nEnd date: ${endDate}\nTravelers: ${travelers}\nBudget: ₹${budget}\nPreferences: ${preferences}\nInterests: ${interests.join(', ')}`
+                });
+                
+                UIUtils.showToast('Itinerary created successfully!', 'success');
+                
+                // Redirect to itinerary page
+                setTimeout(() => {
+                    window.location.href = 'itinerary.html';
+                }, 1500);
+            });
+            
+            // Add event listener for transport form submission
+            document.getElementById('transport-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const fromLocation = document.getElementById('from-location').value;
+                const toLocation = document.getElementById('to-location').value;
+                const travelType = document.getElementById('travel-type').value;
+                const travelDate = document.getElementById('travel-date').value;
+                const passengers = document.getElementById('passengers').value;
+                const classType = document.getElementById('class-type').value;
+                const priceRange = document.getElementById('price-range').value;
+                
+                // Create a new booking with the form data
+                const newBooking = BookingManager.addBooking({
+                    type: travelType,
+                    date: travelDate,
+                    location: `${fromLocation} to ${toLocation}`,
+                    passengers,
+                    classType,
+                    price: priceRange
+                });
+                
+                UIUtils.showToast('Transport booking created successfully!', 'success');
+                
+                // Redirect to bookings page
+                setTimeout(() => {
+                    window.location.href = 'bookings.html';
+                }, 1500);
+            });
+            
+            // Add event listener for local transport form submission
+            document.getElementById('local-transport-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const pickupLocation = document.getElementById('pickup-location').value;
+                const dropoffLocation = document.getElementById('dropoff-location').value;
+                const transportType = document.getElementById('transport-type').value;
+                const pickupTime = document.getElementById('pickup-time').value;
+                const passengers = document.getElementById('passengers').value;
+                const luggage = document.getElementById('luggage').value;
+                const vehiclePreference = document.getElementById('vehicle-preference').value;
+                const priceRange = document.getElementById('price-range').value;
+                
+                // Create a new booking with the form data
+                const newBooking = BookingManager.addBooking({
+                    type: 'Local Transport',
+                    date: pickupTime,
+                    location: `${pickupLocation} to ${dropoffLocation}`,
+                    transportType,
+                    passengers,
+                    luggage,
+                    vehiclePreference,
+                    price: priceRange
+                });
+                
+                UIUtils.showToast('Local transport booking created successfully!', 'success');
+                
+                // Redirect to bookings page
+                setTimeout(() => {
+                    window.location.href = 'bookings.html';
+                }, 1500);
+            });
+        });
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="index.html">Lesss Gooo</a>
+                </div>
+                
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                        <li><a href="my-itineraries.html">My Itineraries</a></li>
+                        <li><a href="bookings.html">My Bookings</a></li>
+                        <li><a href="profile.html">Profile</a></li>
+                    </ul>
+                </nav>
+                
+                <div class="header-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge"></span>
+                        <div class="notification-dropdown">
+                            <div class="notification-header">
+                                <h3>Notifications</h3>
+                                <button class="mark-all-read">Mark all as read</button>
+                            </div>
+                            <div class="notification-list">
+                                <!-- Notifications will be dynamically loaded here -->
+                            </div>
+                            <div class="notification-footer">
+                                <a href="#">View all notifications</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="user-profile">
+                        <img src="https://images.unsplash.com/photo-1633332755192-72705e0b8a50?w=32&h=32&fit=crop&crop=faces" alt="User" class="avatar" id="user-avatar">
+                        <span class="user-name" id="user-name">User Name</span>
+                        <div class="dropdown">
+                            <ul>
+                                <li><a href="profile.html">My Account</a></li>
+                                <li><a href="settings.html">Settings</a></li>
+                                <li><a href="login.html" id="logout-btn">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <button class="mobile-menu-btn">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <ul>
+            <li><a href="dashboard.html" class="active">Dashboard</a></li>
+            <li><a href="my-itineraries.html">My Itineraries</a></li>
+            <li><a href="bookings.html">My Bookings</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="login.html" id="mobile-logout-btn">Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="dashboard-header" style="margin-top: 2rem; padding: 2rem 0;">
+                <h1 class="page-title">Welcome Back, <span id="user-name">User Name</span>!</h1>
+                <div class="quick-actions">
+                    <button class="btn btn-outline" id="filter-btn">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    <button class="btn btn-primary" id="new-trip-btn">
+                        <i class="fas fa-plus"></i> New Trip
+                    </button>
+                </div>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab-header">
+                    <div class="tab active" data-tab="itinerary">Itinerary Planner</div>
+                    <div class="tab" data-tab="transport">Book Travel</div>
+                    <div class="tab" data-tab="local-transport">Local Transport</div>
+                </div>
+                
+                <div class="tab-content">
+                    <!-- Itinerary Planner Tab -->
+                    <div class="tab-pane active" id="itinerary">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Create Your Perfect Itinerary</h2>
+                                <p>Fill in the details below and our AI will generate a personalized travel plan for you.</p>
+                            </div>
+                            
+                            <div class="card-body">
+                                <form id="itinerary-form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="starting-point">
+                                                <i class="fas fa-map-marker-alt"></i> Starting Point
+                                            </label>
+                                            <input type="text" id="starting-point" placeholder="Enter your starting location">
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="destination">
+                                                <i class="fas fa-map-marker-alt"></i> Destination
+                                            </label>
+                                            <input type="text" id="destination" placeholder="Where do you want to go?">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="travel-dates">
+                                                <i class="fas fa-calendar"></i> Travel Dates
+                                            </label>
+                                            <div class="date-inputs">
+                                                <input type="date" id="start-date">
+                                                <input type="date" id="end-date">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="travelers">
+                                                <i class="fas fa-users"></i> Number of Travelers
+                                            </label>
+                                            <select id="travelers">
+                                                <option value="1">1 Traveler</option>
+                                                <option value="2">2 Travelers</option>
+                                                <option value="3">3 Travelers</option>
+                                                <option value="4">4 Travelers</option>
+                                                <option value="5">5 Travelers</option>
+                                                <option value="6+">6+ Travelers</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="budget">
+                                            <i class="fas fa-wallet"></i> Budget (INR)
+                                        </label>
+                                        <div class="range-slider">
+                                            <input type="range" id="budget" min="5000" max="100000" step="1000" value="10000">
+                                            <div class="range-labels">
+                                                <span>₹5,000</span>
+                                                <span id="budget-value">₹10,000</span>
+                                                <span>₹1,00,000+</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="days">
+                                            <i class="fas fa-calendar"></i> Number of Days
+                                        </label>
+                                        <div class="range-slider">
+                                            <input type="range" id="days" min="1" max="30" step="1" value="5">
+                                            <div class="range-labels">
+                                                <span>1 day</span>
+                                                <span id="days-value">5 days</span>
+                                                <span>30 days</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="preferences">
+                                            <i class="fas fa-heart"></i> Travel Preferences
+                                        </label>
+                                        <select id="preferences">
+                                            <option value="luxury">Luxury - Focus on premium experiences</option>
+                                            <option value="budget">Budget - Maximize value for money</option>
+                                            <option value="adventure">Adventure - Outdoor and active experiences</option>
+                                            <option value="cultural">Cultural - Museums, history, and local culture</option>
+                                            <option value="relaxation">Relaxation - Slow-paced and restful</option>
+                                            <option value="balanced">Balanced - Mix of activities and relaxation</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="interests">
+                                            <i class="fas fa-star"></i> Interests
+                                        </label>
+                                        <div class="interests-container">
+                                            <div class="interest-tag">
+                                                <input type="checkbox" id="food" name="interests" value="food">
+                                                <label for="food">Food & Dining</label>
+                                            </div>
+                                            <div class="interest-tag">
+                                                <input type="checkbox" id="history" name="interests" value="history">
+                                                <label for="history">History</label>
+                                            </div>
+                                            <div class="interest-tag">
+                                                <input type="checkbox" id="art" name="interests" value="art">
+                                                <label for="art">Art & Museums</label>
+                                            </div>
+                                            <div class="interest-tag">
+                                                <input type="checkbox" id="nature" name="interests" value="nature">
+                                                <label for="nature">Nature</label>
+                                            </div>
+                                            <div class="interest-tag">
+                                                <input type="checkbox" id="shopping" name="interests" value="shopping">
+                                                <label for="shopping">Shopping</label>
+                                            </div>
+                                            <div class="interest-tag">
+                                                <input type="checkbox" id="nightlife" name="interests" value="nightlife">
+                                                <label for="nightlife">Nightlife</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary btn-block" id="generate-btn">
+                                        Generate Itinerary <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transport Booking Tab -->
+                    <div class="tab-pane" id="transport">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Book Your Travel</h2>
+                                <p>Search and book flights and buses for your journey.</p>
+                            </div>
+                            
+                            <div class="card-body">
+                                <form id="transport-form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="from-location">
+                                                <i class="fas fa-map-marker-alt"></i> From
+                                            </label>
+                                            <input type="text" id="from-location" placeholder="Enter departure city">
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="to-location">
+                                                <i class="fas fa-map-marker-alt"></i> To
+                                            </label>
+                                            <input type="text" id="to-location" placeholder="Enter destination city">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="travel-type">
+                                                <i class="fas fa-route"></i> Travel Type
+                                            </label>
+                                            <select id="travel-type">
+                                                <option value="flight">Flight</option>
+                                                <option value="bus">Bus</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="travel-date">
+                                                <i class="fas fa-calendar"></i> Travel Date
+                                            </label>
+                                            <input type="date" id="travel-date">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="passengers">
+                                                <i class="fas fa-users"></i> Passengers
+                                            </label>
+                                            <select id="passengers">
+                                                <option value="1">1 Passenger</option>
+                                                <option value="2">2 Passengers</option>
+                                                <option value="3">3 Passengers</option>
+                                                <option value="4">4 Passengers</option>
+                                                <option value="5">5 Passengers</option>
+                                                <option value="6+">6+ Passengers</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="class-type">
+                                                <i class="fas fa-chair"></i> Class
+                                            </label>
+                                            <select id="class-type">
+                                                <option value="economy">Economy</option>
+                                                <option value="premium">Premium</option>
+                                                <option value="business">Business</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="price-range">
+                                            <i class="fas fa-wallet"></i> Price Range (INR)
+                                        </label>
+                                        <div class="range-slider">
+                                            <input type="range" id="price-range" min="500" max="10000" step="100" value="2000">
+                                            <div class="range-labels">
+                                                <span>₹500</span>
+                                                <span id="price-value">₹2,000</span>
+                                                <span>₹10,000+</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary btn-block" id="search-btn">
+                                        Search <i class="fas fa-search"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Local Transport Tab -->
+                    <div class="tab-pane" id="local-transport">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Book Local Transport</h2>
+                                <p>Find and book local transportation options for your city.</p>
+                            </div>
+                            
+                            <div class="card-body">
+                                <form id="local-transport-form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="pickup-location">
+                                                <i class="fas fa-map-marker-alt"></i> Pickup Location
+                                            </label>
+                                            <input type="text" id="pickup-location" placeholder="Enter pickup location">
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="dropoff-location">
+                                                <i class="fas fa-map-marker-alt"></i> Drop-off Location
+                                            </label>
+                                            <input type="text" id="dropoff-location" placeholder="Enter drop-off location">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="transport-type">
+                                                <i class="fas fa-car"></i> Transport Type
+                                            </label>
+                                            <select id="transport-type">
+                                                <option value="bike">Bike</option>
+                                                <option value="auto">Auto Rickshaw</option>
+                                                <option value="cab">Cab</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="pickup-time">
+                                                <i class="fas fa-clock"></i> Pickup Time
+                                            </label>
+                                            <input type="datetime-local" id="pickup-time">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="passengers">
+                                                <i class="fas fa-users"></i> Number of Passengers
+                                            </label>
+                                            <select id="passengers">
+                                                <option value="1">1 Passenger</option>
+                                                <option value="2">2 Passengers</option>
+                                                <option value="3">3 Passengers</option>
+                                                <option value="4">4 Passengers</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="luggage">
+                                                <i class="fas fa-suitcase"></i> Luggage
+                                            </label>
+                                            <select id="luggage">
+                                                <option value="none">No Luggage</option>
+                                                <option value="small">Small Bag</option>
+                                                <option value="medium">Medium Bag</option>
+                                                <option value="large">Large Bag</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="vehicle-preference">
+                                            <i class="fas fa-car-side"></i> Vehicle Preference
+                                        </label>
+                                        <select id="vehicle-preference">
+                                            <option value="standard">Standard</option>
+                                            <option value="premium">Premium</option>
+                                            <option value="luxury">Luxury</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="price-range">
+                                            <i class="fas fa-wallet"></i> Price Range (INR)
+                                        </label>
+                                        <div class="range-slider">
+                                            <input type="range" id="price-range" min="50" max="1000" step="10" value="200">
+                                            <div class="range-labels">
+                                                <span>₹50</span>
+                                                <span id="price-value">₹200</span>
+                                                <span>₹1,000+</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary btn-block" id="search-btn">
+                                        Search Available Vehicles <i class="fas fa-search"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card checklist-card">
+                <h3>Checklist</h3>
+                <div class="dashboard-checkbox-container">
+                    <div class="dashboard-checkbox">
+                        <input type="checkbox" id="task1">
+                        <label for="task1">
+                            <i class="fas fa-plane checkbox-icon"></i>
+                            <span class="checkbox-text">Book flights for upcoming trip</span>
+                            <span class="checkbox-date">Due: 2 days</span>
+                        </label>
+                    </div>
+                    <div class="dashboard-checkbox">
+                        <input type="checkbox" id="task2">
+                        <label for="task2">
+                            <i class="fas fa-hotel checkbox-icon"></i>
+                            <span class="checkbox-text">Reserve hotel rooms</span>
+                            <span class="checkbox-date">Due: 1 week</span>
+                        </label>
+                    </div>
+                    <div class="dashboard-checkbox">
+                        <input type="checkbox" id="task3">
+                        <label for="task3">
+                            <i class="fas fa-passport checkbox-icon"></i>
+                            <span class="checkbox-text">Check passport validity</span>
+                            <span class="checkbox-date">Due: 3 days</span>
+                        </label>
+                    </div>
+                    <div class="dashboard-checkbox">
+                        <input type="checkbox" id="task4">
+                        <label for="task4">
+                            <i class="fas fa-suitcase checkbox-icon"></i>
+                            <span class="checkbox-text">Pack luggage</span>
+                            <span class="checkbox-date">Due: 1 day</span>
+                        </label>
+                    </div>
+                    <div class="dashboard-checkbox">
+                        <input type="checkbox" id="task5">
+                        <label for="task5">
+                            <i class="fas fa-map-marked-alt checkbox-icon"></i>
+                            <span class="checkbox-text">Plan daily itinerary</span>
+                            <span class="checkbox-date">Due: 4 days</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <a href="index.html" class="footer-logo">Lesss Gooo</a>
+                <p class="footer-tagline">Your AI Travel Companion</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="itinerary.html">My Itineraries</a></li>
+                        <li><a href="bookings.html">My Bookings</a></li>
+                        <li><a href="profile.html">Profile</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect With Us</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Lesss Gooo. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and panes
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding pane
+                tab.classList.add('active');
+                const pane = document.getElementById(tab.dataset.tab);
+                if (pane) {
+                    pane.classList.add('active');
+                }
+            });
+        });
+
+        // Range slider value updates
+        document.getElementById('budget').addEventListener('input', function() {
+            document.getElementById('budget-value').textContent = '₹' + this.value;
+        });
+
+        document.getElementById('days').addEventListener('input', function() {
+            document.getElementById('days-value').textContent = this.value + ' days';
+        });
+
+        // Form submission
+        document.getElementById('itinerary-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Handle form submission
+            console.log('Form submitted');
+        });
+
+        // View transport details
+        function viewTransportDetails(type, id) {
+            console.log('Viewing transport details:', type, id);
+            // Implementation for viewing transport details
+        }
+
+        // Modify transport
+        function modifyTransport(type, id) {
+            console.log('Modifying transport:', type, id);
+            // Implementation for modifying transport
+        }
+
+        // Initialize tabs on page load
+        window.addEventListener('load', () => {
+            // Set initial active tab
+            const initialTab = document.querySelector('.tab[data-tab="itinerary"]');
+            if (initialTab) {
+                initialTab.classList.add('active');
+                const initialPane = document.getElementById('itinerary');
+                if (initialPane) {
+                    initialPane.classList.add('active');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
